@@ -95,8 +95,7 @@ EventSchema.pre('save', async function () {
     }
 });
 
-// Add indexes for performance.
-EventSchema.index({ slug: 1 }, { unique: true });
+// Add a compound index for performance on common queries.
 EventSchema.index({ date: 1, mode: 1 });
 
 const Event = models.Event || model<IEvent>('Event', EventSchema);
