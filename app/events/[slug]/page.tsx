@@ -1,35 +1,27 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import connectDB from '@/lib/mongodb';
-import Event, { IEvent } from '@/database/event.model';
+import Event from '@/database/event.model';
+import { IEvent } from '@/lib/types';
 
-// This tells Next.js to revalidate the page every hour, ensuring data is fresh.
-export const revalidate = 3600;
-
-// This function generates the static paths for each event at build time.
 export async function generateStaticParams() {
     await connectDB();
-    const events = await Event.find({}, 'slug'); // Fetch only the slug field.
+    const events = await Event.find({}, 'slug');
     return events.map((event) => ({
         slug: event.slug,
     }));
 }
 
-// This function fetches a single event by its slug directly from the database.
 async function getEvent(slug: string): Promise<IEvent | null> {
     await connectDB();
     const event = await Event.findOne({ slug });
     if (!event) return null;
-    // Mongoose returns a document that needs to be converted to a plain object.
     return JSON.parse(JSON.stringify(event));
 }
 
-// This is the main page component.
 export default async function EventDetailsPage({ params }: { params: { slug: string } }) {
-    // The 'params' object is no longer a promise when using generateStaticParams.
     const event = await getEvent(params.slug);
 
-    // If no event is found, render the 404 page.
     if (!event) {
         notFound();
     }

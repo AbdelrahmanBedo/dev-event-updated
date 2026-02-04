@@ -1,14 +1,12 @@
 import ExploreBtn from "@/components/ExploreBtn";
 import EventCard from "@/components/EventCard";
-import { IEvent } from "@/database/event.model";
+import { IEvent } from "@/lib/types";
 import connectDB from "@/lib/mongodb";
 import Event from "@/database/event.model";
 
-// This function fetches all events directly from the database
 async function getAllEvents(): Promise<IEvent[]> {
     await connectDB();
     const events = await Event.find({});
-    // Mongoose returns documents that need to be converted to plain objects
     return JSON.parse(JSON.stringify(events));
 }
 
