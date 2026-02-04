@@ -1,15 +1,19 @@
 import ExploreBtn from "@/components/ExploreBtn";
 import EventCard from "@/components/EventCard";
-import {IEvent} from "@/database/event.model";
-import {cacheLife} from "next/cache";
+import { IEvent } from "@/database/event.model";
+import connectDB from "@/lib/mongodb";
+import Event from "@/database/event.model";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+// This function fetches all events directly from the database
+async function getAllEvents(): Promise<IEvent[]> {
+    await connectDB();
+    const events = await Event.find({});
+    // Mongoose returns documents that need to be converted to plain objects
+    return JSON.parse(JSON.stringify(events));
+}
 
 const Page = async () => {
-    'use cache';
-    cacheLife('hours')
-    const response = await fetch(`${BASE_URL}/api/events`);
-    const { events } = await response.json();
+    const events = await getAllEvents();
 
     return (
         <section>
