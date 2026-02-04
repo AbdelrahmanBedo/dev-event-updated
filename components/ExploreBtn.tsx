@@ -3,14 +3,13 @@
 import Image from "next/image";
 
 const ExploreBtn = () => {
+    // Use an anchor tag as the main element and style it like a button.
     return (
-        <button type="button" id="explore-btn" className="mt-7 mx-auto" onClick={() => console.log('CLICK')}>
-            <a href="#events">
-                Explore Events
-                <Image src="/icons/arrow-down.svg" alt="arrow-down" width={24} height={24} className="flex-shrink-0" />
-            </a>
-        </button>
-    )
+        <a href="#events" id="explore-btn" className="mt-7 mx-auto">
+            Explore Events
+            <Image src="/icons/arrow-down.svg" alt="arrow-down" width={24} height={24} className="flex-shrink-0" />
+        </a>
+    );
 }
 
-export default ExploreBtn
+export default ExploreBtn;

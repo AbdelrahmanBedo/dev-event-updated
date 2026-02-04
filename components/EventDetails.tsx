@@ -1,20 +1,17 @@
-import React from 'react'
-import {notFound} from "next/navigation";
-import {IEvent} from "@/database/event.model";
-import {getSimilarEventsBySlug} from "@/lib/actions/event.actions";
-import Image from "next/image";
-import BookEvent from "@/components/BookEvent";
-import EventCard from "@/components/EventCard";
-import {cacheLife} from "next/cache";
+'use client';
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+import React from 'react';
+import Image from 'next/image';
+import { IEvent } from '@/lib/types';
+import BookEvent from '@/components/BookEvent';
+import EventCard from '@/components/EventCard';
 
 const EventDetailItem = ({ icon, alt, label }: { icon: string; alt: string; label: string; }) => (
     <div className="flex-row-gap-2 items-center">
         <Image src={icon} alt={alt} width={17} height={17} />
         <p>{label}</p>
     </div>
-)
+);
 
 const EventAgenda = ({ agendaItems }: { agendaItems: string[] }) => (
     <div className="agenda">
@@ -25,7 +22,7 @@ const EventAgenda = ({ agendaItems }: { agendaItems: string[] }) => (
             ))}
         </ul>
     </div>
-)
+);
 
 const EventTags = ({ tags }: { tags: string[] }) => (
     <div className="flex flex-row gap-1.5 flex-wrap">
@@ -33,44 +30,11 @@ const EventTags = ({ tags }: { tags: string[] }) => (
             <div className="pill" key={tag}>{tag}</div>
         ))}
     </div>
-)
+);
 
-const EventDetails = async ({ params }: { params: Promise<string> }) => {
-    'use cache'
-    cacheLife('hours');
-    const slug = await params;
-
-    let event;
-    try {
-        const request = await fetch(`${BASE_URL}/api/events/${slug}`, {
-            next: { revalidate: 60 }
-        });
-
-        if (!request.ok) {
-            if (request.status === 404) {
-                return notFound();
-            }
-            throw new Error(`Failed to fetch event: ${request.statusText}`);
-        }
-
-        const response = await request.json();
-        event = response.event;
-
-        if (!event) {
-            return notFound();
-        }
-    } catch (error) {
-        console.error('Error fetching event:', error);
-        return notFound();
-    }
-
+const EventDetails = ({ event, similarEvents }: { event: IEvent, similarEvents: IEvent[] }) => {
     const { description, image, overview, date, time, location, mode, agenda, audience, tags, organizer } = event;
-
-    if(!description) return notFound();
-
-    const bookings = 10;
-
-    const similarEvents: IEvent[] = await getSimilarEventsBySlug(slug);
+    const bookings = 10; // This is a placeholder
 
     return (
         <section id="event">
@@ -80,7 +44,7 @@ const EventDetails = async ({ params }: { params: Promise<string> }) => {
             </div>
 
             <div className="details">
-                {/*    Left Side - Event Content */}
+                {/* Left Side - Event Content */}
                 <div className="content">
                     <Image src={image} alt="Event Banner" width={800} height={800} className="banner" />
 
@@ -91,7 +55,6 @@ const EventDetails = async ({ params }: { params: Promise<string> }) => {
 
                     <section className="flex-col-gap-2">
                         <h2>Event Details</h2>
-
                         <EventDetailItem icon="/icons/calendar.svg" alt="calendar" label={date} />
                         <EventDetailItem icon="/icons/clock.svg" alt="clock" label={time} />
                         <EventDetailItem icon="/icons/pin.svg" alt="pin" label={location} />
@@ -109,7 +72,7 @@ const EventDetails = async ({ params }: { params: Promise<string> }) => {
                     <EventTags tags={tags} />
                 </div>
 
-                {/*    Right Side - Booking Form */}
+                {/* Right Side - Booking Form */}
                 <aside className="booking">
                     <div className="signup-card">
                         <h2>Book Your Spot</h2>
@@ -117,10 +80,9 @@ const EventDetails = async ({ params }: { params: Promise<string> }) => {
                             <p className="text-sm">
                                 Join {bookings} people who have already booked their spot!
                             </p>
-                        ): (
+                        ) : (
                             <p className="text-sm">Be the first to book your spot!</p>
                         )}
-
                         <BookEvent eventId={event._id} slug={event.slug} />
                     </div>
                 </aside>
@@ -135,6 +97,7 @@ const EventDetails = async ({ params }: { params: Promise<string> }) => {
                 </div>
             </div>
         </section>
-    )
-}
-export default EventDetails
+    );
+};
+
+export default EventDetails;
